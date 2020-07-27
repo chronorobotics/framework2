@@ -20,3 +20,8 @@ bruteForceTrain mwp params err = bestm
                     better (e1, p1) (e2, p2) | e2 > e1 = (e1, p1)
                                              | otherwise = (e2, p2)
 
+methodChangeType :: (t2 -> t1) -> (y2 -> y1) -> (y1 -> y2) -> Method t1 y1 -> Method t2 y2
+methodChangeType ft21 fy21 f12 m1 = \dat -> tt $ m1 $ map f21 dat
+    where tt (s, f) = (s, f12 . f . ft21)
+          f21 (t, y) = (ft21 t, fy21 y)
+
