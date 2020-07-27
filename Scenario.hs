@@ -10,9 +10,9 @@ processScenario (name, load, errf) trn tsts methods = do
     putStrLn name;
     train <- load trn;
     let preds = map (\m -> m train) methods;
-    putStrLn $ show $ map (\(s, _) -> s) preds;
+    sequence $ map putStrLn $ map (\(s, _) -> s) preds;
     tests <- sequence $ map load tsts;
     let errors = map (\p -> map (\t -> meanError p t errf) tests) preds;
-    putStrLn $ show errors;
+    sequence $ map (putStrLn . show) errors;
     return ();
 
