@@ -8,6 +8,7 @@ class Meanable a where
     mean :: [a] -> a
 
 instance Fractional a => Meanable a where
+    mean [] = 0
     mean as = (sum as) / (fromIntegral $ length as)
 
 instance (Meanable a) => Meanable [a] where
