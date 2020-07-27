@@ -2,10 +2,11 @@ module Scenario where
 
 import Predictor
 
-type Scenario t y = (String, String -> IO(Dataset t y))
+type DataLoader t y = String -> IO(Dataset t y)
+type Scenario t y = (String, DataLoader t y, ErrorFunc y)
 
-processScenario :: Scenario t y -> String -> [String] -> [Method t y] -> ErrorFunc y -> IO()
-processScenario (name, load) trn tsts methods errf = do
+processScenario :: Scenario t y -> String -> [String] -> [Method t y] -> IO()
+processScenario (name, load, errf) trn tsts methods = do
     putStrLn name;
     train <- load trn;
     let preds = map (\m -> m train) methods;
