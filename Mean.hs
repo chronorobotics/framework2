@@ -28,6 +28,6 @@ instance (Meanable a) => Meanable [a] where
 constPredictor :: y -> String -> Predictor t y
 constPredictor pred str = (str, \_ -> pred)
 
-meanMethod :: Meanable y => Method t y
-meanMethod dat = constPredictor (mean $ map (\(_, a) -> a) dat) "Mean"
+meanMethod :: Meanable y => Method t y h
+meanMethod (_, dat) = constPredictor (mean $ map (\(_, a) -> a) dat) "Mean"
 

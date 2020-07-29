@@ -6,7 +6,7 @@ import TimeValueLoader
 import Mean
 import Histogram
 
-doorState :: Scenario Double Float
+doorState :: Scenario Double Float ()
 doorState = ("Door State Prediction", timeValueLoader, meanError squareError)
 
 main :: IO()

@@ -14,8 +14,8 @@ histogramPredictor :: (RealFrac t, Show y) => [y] -> t -> String -> Predictor t 
 histogramPredictor bins period str = (str, pred)
     where pred t = bins !! (getBinNo period t (length bins))
 
-histogramMethod :: (RealFrac t, Show y, Meanable y) => MethodWithParams (t, Int) t y
-histogramMethod (period, nbins) dat = histogramPredictor (map (\(s,n) -> meanDivision s n) bins) period ("Hist "++(show nbins))
+histogramMethod :: (RealFrac t, Show y, Meanable y) => MethodWithParams (t, Int) t y h
+histogramMethod (period, nbins) (_, dat) = histogramPredictor (map (\(s,n) -> meanDivision s n) bins) period ("Hist "++(show nbins))
     where s = replicate nbins (meanZero, 0)
           addToBin bs n y = b1 ++ [add b y] ++ b2
               where (b1, (b:b2)) = splitAt n bs
