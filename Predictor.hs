@@ -26,5 +26,12 @@ methodChangeType ft21 fy21 f12 fh m1 = \(header, dat) -> tt $ m1 $ (fh header, m
     where tt (s, f) = (s, f12 . f . ft21)
           f21 (t, y) = (ft21 t, fy21 y)
 
+methodChangeHeader :: (h2 -> h1) -> Method t y h1 -> Method t y h2
+methodChangeHeader = methodChangeType id id id
+
+methodFilterDataset :: (Dataset t y h2 -> Dataset t y h1) -> Method t y h1 -> Method t y h2
+methodFilterDataset filter m dat = m $ filter dat
+
 parametriseMethodTransform :: (Method t1 y1 h1 -> Method t2 y2 h2) -> MethodWithParams p t1 y1 h1 -> MethodWithParams p t2 y2 h2
 parametriseMethodTransform mt mwp p = mt $ mwp p
+
