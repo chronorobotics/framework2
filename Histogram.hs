@@ -4,8 +4,6 @@ import Data.Fixed
 import Predictor
 import Mean
 
-import Debug.Trace
-
 getBinNo :: (RealFrac t, Integral n) => t -> t -> n -> n
 getBinNo period time nbins = floor ((mod' time period) / bin_length)
     where bin_length = period / (fromIntegral nbins)
