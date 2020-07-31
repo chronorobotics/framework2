@@ -6,6 +6,10 @@ import Cell
 import Data.Sequence
 import Data.Foldable
 
+-- |This function filters the dataset in a way so it sums all data in each cell
+-- and each of these sums is used as a single piece of data. The first argument
+-- is the zero element and the second argument is the sum function. 0 and (+)
+-- shall be used for classic summation of numbers.
 dataCollector :: RealFrac t => y -> (y -> y -> y) -> Dataset [t] y (CellGrid t, h) -> Dataset [t] y h
 dataCollector zero sum_f ((grid, header), dat) = (header, dat')
     where cc = subcellCount grid
