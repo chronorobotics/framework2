@@ -2,16 +2,21 @@ module CellGridMethod where
 
 import Predictor
 import Cell
+import Data.Sequence
 
-cellGridMethod :: (RealFrac x, Integral n) => (h -> n -> h') -> Method t y h' -> Method (t, [x]) y (CellGrid x, h)
+cellGridMethod :: RealFrac x => (h -> Int -> h') -> Method t y h' -> Method (t, [x]) y (CellGrid x, h)
 cellGridMethod hf m = cgm
     where cgm ((grid, rest), dat) = (name, pred)
-              where pred (t, x) = (preds !! (getSubcellId grid x)) t
-                    preds' = map (\i -> m (hf rest i, map (\((t, c), y) -> (t, y)) $ filter (\((t, c), y) -> c == i) dat_wcellid)) [0..((subcellCount grid) - 1)]
-                    dat_wcellid = map (\((t, x), y) -> ((t, getSubcellId grid x), y)) dat
-                    (name, _) = preds' !! 0
-                    preds = map (\(_, p) -> p) preds'
+              where cc = subcellCount grid
+                    pred (t, x) = (index preds (getSubcellId grid x)) t
+                    preds' = fmap (\i -> m (hf rest i, index dat' i)) $ fromList [0..((subcellCount grid) - 1)]
+                    dat0 = Data.Sequence.replicate cc []
+                    add ((t, x), y) d = update i ((t, y) : (index d i)) d
+                        where i = getSubcellId grid x
+                    dat' = foldr add dat0 dat
+                    (name, _) = index preds' 0
+                    preds = fmap (\(_, p) -> p) preds'
 
-cellGridMethodParams :: (RealFrac x, Integral n) => (h -> n -> h') -> MethodWithParams p t y h' -> MethodWithParams p (t, [x]) y (CellGrid x, h)
+cellGridMethodParams :: RealFrac x => (h -> Int -> h') -> MethodWithParams p t y h' -> MethodWithParams p (t, [x]) y (CellGrid x, h)
 cellGridMethodParams hf mwp = parametriseMethodTransform (cellGridMethod hf) mwp
 
