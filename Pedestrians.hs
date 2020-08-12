@@ -19,8 +19,8 @@ pedestriansTransform = (methodChangeType sdt id id sdh) . (cellGridMethod (\h _ 
 pedestriansTransform' :: MethodWithParams p Double Float () -> MethodWithParams p (Cell Double) Float (CellGrid Double)
 pedestriansTransform' = parametriseMethodTransform pedestriansTransform
 
-spatialResolution = 0.5
-temporalResolution = 900
+spatialResolution = 0.3
+temporalResolution = 300
 
 pedestrians :: Scenario (Cell Double) Float (CellGrid Double)
 pedestrians = ("Pedestrians Prediction", pedestriansLoader temporalResolution spatialResolution, pedestriansErrorEvaluator squareError)
@@ -28,7 +28,7 @@ pedestrians = ("Pedestrians Prediction", pedestriansLoader temporalResolution sp
 main :: IO ()
 main = processScenario pedestrians
        "lincoln/trenovaci_dva_tydny.txt"
-       ["lincoln/testovaci_dva_dny.txt", "lincoln/testovaci_tri_dny.txt", "lincoln/kontrolni_ctvrtek.txt"]
+       [("lincoln/testovaci_dva_dny.txt", "Test\n2 days"), ("lincoln/testovaci_tri_dny.txt", "Test\n3 days"), ("lincoln/kontrolni_ctvrtek.txt", "Test\nThursday")]
        [
            pedestriansTransform meanMethod,
            bruteForceTrain (pedestriansTransform' histogramMethod) (map (\a -> (86400, a)) [3,4,6,12,24]) (pedestriansErrorEvaluator squareError)

@@ -4,8 +4,9 @@ Framework for Testing Prediction Methods
 Build & Run
 -----------
 
-1. Build the experiment you are interested in, for example `ghc DoorState.hs`
-2. Run the created executable, for example `./DoorState`
+1. Install the requirements by `cabal install Statistics`
+2. Build the experiment you are interested in, for example `ghc DoorState.hs`
+3. Run the created executable, for example `./DoorState`
 
 How to implement a prediction method
 ------------------------------------
