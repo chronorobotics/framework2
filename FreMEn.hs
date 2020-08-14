@@ -23,7 +23,7 @@ evalFrelement :: Floating f => f -> Frelement f -> f
 evalFrelement t Frelement{amplitude = a, phase = phi, period = p} = a * (cos $ 2*pi*t/p - phi)
 
 freMEn :: (RealFloat t, RealFrac y) => MethodWithParams (t, Int, Int) t y h
-freMEn (maxPeriod, elements, order) (_, dat) = ("FreMen "++(show order), predict)
+freMEn (maxPeriod, elements, order) (_, dat) = ("FreMEn "++(show order), predict)
     where dat' = map (\(t,y) -> (realToFrac t, realToFrac y)) dat :: [(Double, Double)]
           (storedGain, frelements) = trainFrelements (maxPeriod, elements, order) dat'
           predict time = realToFrac $ storedGain + (sum $ map (evalFrelement $ realToFrac time) frelements)
