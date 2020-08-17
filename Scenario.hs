@@ -7,11 +7,16 @@ import qualified Data.Vector
 import System.Process
 import System.Directory
 
+import Debug.Trace
+
+mtrace a = trace (show a) a
+
 type DataLoader t y h = String -> IO(Dataset t y h)
 type Scenario t y h = (String, DataLoader t y h, ErrorEvaluator t y h)
 
 isBetter :: [Double] -> [Double] -> Bool
-isBetter as bs = isyes $ studentTTest BGreater (Data.Vector.fromList as) (Data.Vector.fromList bs)
+isBetter as bs | as == bs = False --because of a bug in Statistics.Test.StudentT
+               | otherwise = isyes $ pairedTTest BGreater (Data.Vector.fromList $ zip as bs)
     where isyes (Just t) = (Statistics.Types.pValue $ testSignificance t) < 0.05
           isyes Nothing = False
 
