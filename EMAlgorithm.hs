@@ -5,11 +5,15 @@
 {-# LANGUAGE UndecidableInstances #-}
 module EMAlgorithm where
 
+import System.Random
+
 class Distribution dist space | dist -> space where
     densityAt :: RealFloat f => dist -> space -> f
 
 class (Distribution dist space) => EMDistribution dist space | dist -> space where
     maximumLikelihoodEstimate :: RealFloat f => [(space, f)] -> dist
+
+type InitDistribution g d = g -> (d, g)
 
 -- mixture of distributions
 instance (Distribution d s, RealFloat f) => Distribution [(f, d)] s where
@@ -47,4 +51,17 @@ performEM start min_dl bounder points = em start (logLikelihood points start)
                     | otherwise = em wcs' lh'
               where wcs' = em' wcs
                     lh' = logLikelihood points wcs'
+
+initEM :: (RandomGen g, Distribution d s, RealFloat f, Random f) => InitDistribution g d -> Int -> InitDistribution g [(f, d)]
+initEM init n gen = (map (\(w, c) -> (w/sum_w, c)) wcs, gen')
+    where add_wc (wcs, g) = ((w, c):wcs, g'')
+              where (c, g') = init g
+                    (w, g'') = randomR (0.0, 1.0) g'
+          (wcs, gen') = iterate add_wc ([], gen) !! n
+          sum_w = sum $ map (\(w, _) -> w) wcs
+
+mergeInits :: RandomGen g => InitDistribution g d1 -> InitDistribution g d2 -> InitDistribution g (d1, d2)
+mergeInits init1 init2 gen = ((d1, d2), gen'')
+    where (d1, gen') = init1 gen
+          (d2, gen'') = init2 gen'
 
