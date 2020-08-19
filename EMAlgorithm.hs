@@ -5,19 +5,11 @@
 {-# LANGUAGE UndecidableInstances #-}
 module EMAlgorithm where
 
-import System.Random
-
 class Distribution dist space | dist -> space where
     densityAt :: RealFloat f => dist -> space -> f
 
-class InitDistribution dist where
-    initiateDistribution :: RandomGen g => g -> (dist, g)
-
 class (Distribution dist space) => EMDistribution dist space | dist -> space where
     maximumLikelihoodEstimate :: RealFloat f => [(space, f)] -> dist
-
--- | random generator, cluster count, min. dl, bounder
-type EMParams g f d = (g, Int, f, d -> d)
 
 -- mixture of distributions
 instance (Distribution d s, RealFloat f) => Distribution [(f, d)] s where
@@ -26,11 +18,6 @@ instance (Distribution d s, RealFloat f) => Distribution [(f, d)] s where
 -- cartesian product of distributions
 instance (Distribution d1 s1, Distribution d2 s2) => Distribution (d1, d2) (s1, s2) where
     densityAt (d1, d2) (p1, p2) = (densityAt d1 p1) * (densityAt d2 p2)
-
-instance (InitDistribution d1, InitDistribution d2) => InitDistribution (d1, d2) where
-    initiateDistribution gen = ((d1, d2), gen'')
-        where (d1, gen') = initiateDistribution gen
-              (d2, gen'') = initiateDistribution gen'
 
 instance (EMDistribution d1 s1, EMDistribution d2 s2) => EMDistribution (d1, d2) (s1, s2) where
     maximumLikelihoodEstimate dat = (maximumLikelihoodEstimate dat1, maximumLikelihoodEstimate dat2)
@@ -52,15 +39,9 @@ maximisation points alphass = zip weights clusters
           weights = map (\i -> (sum $ map (!!i) alphass) / n) [0..(k-1)]
           clusters = map (\i -> maximumLikelihoodEstimate $ zip points $ map (!!i) alphass) [0..(k-1)]
 
-performEM :: (RealFloat f, EMDistribution d s, RandomGen g, InitDistribution d) => EMParams g f d -> [s] -> [(f, d)]
-performEM (gen, count, min_dl, bounder) points = em start (logLikelihood points start)
-    where (_, start') = iterate make_wc (gen, []) !! count
-          (gmin, gmax) = genRange gen
-          make_wc (rg, wcs) = (rg'', ( (fromIntegral (weight - gmin)) / (fromIntegral (gmax - gmin)), dist) : wcs)
-              where (dist, rg') = initiateDistribution rg
-                    (weight, rg'') = next rg'
-          start = map (\(w, c) -> (w / (sum $ map (\(w, _) -> w) start'), c)) start'
-          bounder' wcs = map (\(w, c) -> (w, bounder c)) wcs
+performEM :: (RealFloat f, EMDistribution d s) => [(f, d)] -> f -> (d -> d) -> [s] -> [(f, d)]
+performEM start min_dl bounder points = em start (logLikelihood points start)
+    where bounder' wcs = map (\(w, c) -> (w, bounder c)) wcs
           em' = bounder' . (maximisation points) . (expectation points)
           em wcs lh | lh' - lh < min_dl = wcs'
                     | otherwise = em wcs' lh'
