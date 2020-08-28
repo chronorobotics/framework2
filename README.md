@@ -4,7 +4,7 @@ Framework for Testing Prediction Methods
 Build & Run
 -----------
 
-1. Install the requirements by `cabal install Statistics`
+1. Install the requirements by `cabal install Statistics hmatrix`
 2. Build the experiment you are interested in, for example `ghc DoorState.hs`
 3. Run the created executable, for example `./DoorState`
 
