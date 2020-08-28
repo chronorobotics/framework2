@@ -45,3 +45,6 @@ initGaussian' :: (RandomGen g) => Int -> Double -> Double -> Double -> Double ->
 initGaussian' n mean_min mean_max var_min var_max = initGaussian (r mean_min) (r mean_max) (r var_min) (r var_max)
     where r = replicate n
 
+gaussianMinVar :: Double -> Gaussian -> Gaussian
+gaussianMinVar mv (Gaussian mu (lambda, v)) = Gaussian mu (cmap (max mv) lambda, v)
+
