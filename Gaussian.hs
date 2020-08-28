@@ -8,8 +8,9 @@ import Numeric.LinearAlgebra.Data
 import Data.Complex
 import System.Random
 import EMAlgorithm
+import Distribution
 
-data Gaussian = Gaussian (Vector Double) (Vector Double, Matrix Double)
+data Gaussian = Gaussian (Vector Double) (Vector Double, Matrix Double) deriving (Show, Eq)
 
 instance Distribution Gaussian [Double] where
     densityAt (Gaussian mu (lambda, v)) at = realToFrac $ (exp x) / (sqrt $ (2*pi)^n * (product ls))
@@ -18,6 +19,7 @@ instance Distribution Gaussian [Double] where
               ls = toList lambda
               x = (-0.5) * (sum $ zipWith (/) (map (^2) t') ls)
               n = fromIntegral $ length at
+    distributionShortcut _ = "Gauss"
 
 instance EMDistribution Gaussian [Double] where
     maximumLikelihoodEstimate dat = Gaussian (fromList means) (fromComplex $ eig $ fromLists cov)

@@ -46,10 +46,7 @@ initEM init n gen = (map (\(w, c) -> (w/sum_w, c)) wcs, gen')
           (wcs, gen') = iterate add_wc ([], gen) !! n
           sum_w = sum $ map (\(w, _) -> w) wcs
 
-emAlgorithm' :: (RealFloat f, EMDistribution d s) => [(f, d)] -> f -> (d -> d) -> DistributionEstimator s [(f, d)]
-emAlgorithm' start min_dl bounder = ("EM", performEM start min_dl bounder)
-
 emAlgorithm :: (Random f, RealFloat f, EMDistribution d s) => Int -> Int -> InitDistribution StdGen d -> f -> (d -> d) -> DistributionEstimator s [(f, d)]
-emAlgorithm clusters seed init = emAlgorithm' start
+emAlgorithm clusters seed init min_dl bounder = ("EM-"++(distributionShortcut $ snd $ start !! 0)++" "++(show clusters), performEM start min_dl bounder)
     where (start, _) = initEM init clusters $ mkStdGen seed
 
