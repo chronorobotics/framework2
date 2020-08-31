@@ -50,3 +50,9 @@ methodFilterDataset filter m dat = m $ filter dat
 parametriseMethodTransform :: (Method t1 y1 h1 -> Method t2 y2 h2) -> MethodWithParams p t1 y1 h1 -> MethodWithParams p t2 y2 h2
 parametriseMethodTransform mt mwp p = mt $ mwp p
 
+-- |This function does something similar to parametriseMethodTransform but this
+-- time, the method transformation has an additional parameter. This parameter
+-- is added to the resulting method with params.
+parametriseMethodTransform' :: (p' -> Method t1 y1 h1 -> Method t2 y2 h2) -> MethodWithParams p t1 y1 h1 -> MethodWithParams (p', p) t2 y2 h2
+parametriseMethodTransform' mt mwp (p', p) = mt p' $ mwp p
+
