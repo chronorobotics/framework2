@@ -1,9 +1,11 @@
 module Scenario where
 
 import Predictor
-import Statistics.Test.StudentT
-import Statistics.Types
-import qualified Data.Vector
+import Statistics.Distribution
+import Statistics.Distribution.StudentT
+--import Statistics.Test.StudentT
+--import Statistics.Types
+--import qualified Data.Vector
 import System.Process
 import System.Directory
 
@@ -15,10 +17,14 @@ type DataLoader t y h = String -> IO(Dataset t y h)
 type Scenario t y h = (String, DataLoader t y h, ErrorEvaluator t y h)
 
 isBetter :: [Double] -> [Double] -> Bool
-isBetter as bs | as == bs = False --because of a bug in Statistics.Test.StudentT
-               | otherwise = isyes $ pairedTTest BGreater (Data.Vector.fromList $ zip as bs)
-    where isyes (Just t) = (Statistics.Types.pValue $ testSignificance t) < 0.05
-          isyes Nothing = False
+isBetter as bs | n < 2 || as == bs = False
+               | otherwise = q > 0.95 -- workaround due to a bug with Data.Vector
+    where d = zipWith (-) bs as
+          d_sum = sum d
+          n = fromIntegral $ length as
+          df = n - 1
+          t = d_sum / ((n * (sum $ map (^2) d) - d_sum^2) / df)
+          q = cumulative (studentT df) t
 
 oneArrow :: (String, [Double]) -> (String, [Double]) -> String
 oneArrow (an, ae) (bn, be) | isBetter ae be = "\""++an++"\" -> \""++bn++"\"\n"
