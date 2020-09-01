@@ -23,7 +23,8 @@ instance Distribution Gaussian [Double] where
 
 instance EMDistribution Gaussian [Double] where
     maximumLikelihoodEstimate dat = Gaussian (fromList means) (fromComplex $ eig $ fromLists cov)
-        where n = let (x, _) = head dat in length x
+        where n = let (x, _) = head ps ws in length x
+              dat = zip ps ws
               fromComplex' m = cmap (\(x :+ _) -> x) m
               fromComplex (a, b) = (fromComplex' a, fromComplex' b)
               sum_w = realToFrac $ sum $ map (\(_, w) -> w) dat

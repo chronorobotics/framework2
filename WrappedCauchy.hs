@@ -15,11 +15,11 @@ instance RealFloat a => Distribution (WrappedCauchy a) a where
     distributionShortcut _ = "wC"
 
 instance RealFloat a => EMDistribution (WrappedCauchy a) a where
-    maximumLikelihoodEstimate dat = WrappedCauchy $ fmap realToFrac $ i' (0:+0)
+    maximumLikelihoodEstimate ps ws = WrappedCauchy $ fmap realToFrac $ i' (0:+0)
         where u z phi = (z - phi) / (1 - (conjugate phi)*z)
-              sum_w = (realToFrac $ sum $ map snd dat) :+ 0
-              f mu_n = u ((sum $ map (\(t, w) -> (w:+0)*(u (exp (0:+(realToFrac t))) mu_n)) dat)/sum_w) (-mu_n)
-              i a b | a == b = a
+              sum_w = realToFrac $ sum ws
+              f mu_n = u (fmap (/sum_w) $ sum $ zipWith (\t w -> fmap (*w) $ u (exp (0:+(realToFrac t))) mu_n) ps ws) (-mu_n)
+              i a b | magnitude (a - b) < 1E-7 = a
                     | otherwise = i b $ f b
               i' a = i a $ f a
 
