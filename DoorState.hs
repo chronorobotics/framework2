@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 import Predictor
 import Scenario
 import ErrorFunctions
@@ -9,8 +10,17 @@ import FreMEn
 
 import Trimmer
 
+import DistributionMethod
+import EMAlgorithm
+import WrappedTime
+import WrappedCauchy
+import VonMises
+
 doorState :: Scenario Double Float ()
 doorState = ("Door State Prediction", timeValueLoader, meanError squareError)
+
+bdm :: (EMDistribution d Double) => () -> DistributionToMethod Double Float () [(Double, d)]
+bdm = const binaryDistributionMethod
 
 main :: IO()
 main = processScenario doorState
@@ -19,7 +29,8 @@ main = processScenario doorState
        [
            meanMethod,
            bruteForceTrain histogramMethod (map (\a -> (86400, a)) [3,4,6,12,24]) (meanError squareError),
-           bruteForceTrain (parametriseMethodTransform (trimmer 0 1) freMEn) (map (\a -> (604800, 84, a)) [1..5]) (meanError squareError)
---           trimmer 0.01 0.99 $ freMEn (604800, 84, 5)
+           bruteForceTrain (parametriseMethodTransform (trimmer 0 1) freMEn) (map (\a -> (604800, 84, a)) [1..5]) (meanError squareError),
+           bruteForceTrain (parametriseMethodTransform' (wrappedMethod wrapTime') $ createDistributionMethod bdm emAlgorithm) (map (\a -> (604800, ((), (a, 7350, initWrappedCauchy 0.999, 1.0, wrappedCauchyMaxMu 0.999)))) [5,10,15,20,25,30]) (meanError squareError),
+           bruteForceTrain (parametriseMethodTransform' (wrappedMethod wrapTime') $ createDistributionMethod bdm emAlgorithm) (map (\a -> (604800, ((), (a, 7351, initVonMises 100, 1.0, vonMisesMaxKappa 300)))) [5,10,15,20,25,30]) (meanError squareError)
        ]
 
