@@ -31,8 +31,8 @@ maximisation :: (RealFloat f, EMDistribution d s) => [s] -> [[f]] -> [(f, d)]
 maximisation points alphass = trace "Performing Maximisation ..." $ zip weights clusters
     where k = length $ alphass !! 0
           n = fromIntegral $ length alphass
-          weights = map sum a' --map (\i -> (sum $ map (!!i) alphass) / n) [0..(k-1)]
-          clusters = map (\as -> maximumLikelihoodEstimate points as) a' --map (\i -> maximumLikelihoodEstimate $ zip points $ map (!!i) alphass) [0..(k-1)]
+          weights = map (\as -> sum as / n) a'
+          clusters = map (\as -> maximumLikelihoodEstimate points as) a'
           a' = foldr (zipWith (:)) (repeat []) alphass
 
 performEM :: (RealFloat f, Show f, EMDistribution d s) => [(f, d)] -> f -> (d -> d) -> [s] -> [(f, d)]
