@@ -13,10 +13,10 @@ import Debug.Trace
 
 tr x = trace (show x) x
 
-data VonMises = VonMises Double Double
+data VonMises = VonMises Double Double deriving (Show, Eq)
 
 instance Distribution VonMises Double where
-    densityAt (VonMises mu kappa) t = realToFrac $ (exp $ kappa * (cos $ t - mu)) / (bessel_I0 kappa)
+    densityAt (VonMises mu kappa) t = realToFrac $ (exp $ kappa * (cos $ t - mu)) / (2*pi * bessel_I0 kappa)
     distributionShortcut _ = "vM"
 
 instance EMDistribution VonMises Double where
