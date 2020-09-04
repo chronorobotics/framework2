@@ -3,6 +3,7 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE BangPatterns #-}
 module EMAlgorithm where
 
 import Distribution
@@ -22,13 +23,13 @@ instance (EMDistribution d1 s1, EMDistribution d2 s2) => EMDistribution (d1, d2)
     maximumLikelihoodEstimate ps ws = (maximumLikelihoodEstimate (map fst ps) ws, maximumLikelihoodEstimate (map snd ps) ws)
 
 expectation :: (RealFloat f, EMDistribution d s) => [s] -> [(f, d)] -> [[f]]
-expectation points clusters = trace "Performing Expectation ..." $ map e1 points
+expectation !points !clusters = trace "Performing Expectation ..." $ map e1 points
     where e1 p = normalise $ map (\(w, d) -> w * densityAt d p) clusters
           normalise xs = map (/(sum xs)) xs
 
 --TODO separate code for matrix transposition: transpose = foldr (zipWith (:)) (repeat [])
 maximisation :: (RealFloat f, EMDistribution d s) => [s] -> [[f]] -> [(f, d)]
-maximisation points alphass = trace "Performing Maximisation ..." $ zip weights clusters
+maximisation !points !alphass = trace "Performing Maximisation ..." $ zip weights clusters
     where k = length $ alphass !! 0
           n = fromIntegral $ length alphass
           weights = map (\as -> sum as / n) a'

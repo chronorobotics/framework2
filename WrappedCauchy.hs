@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns #-}
 module WrappedCauchy where
 
 import Data.Complex
@@ -11,14 +12,15 @@ import EMAlgorithm
 data WrappedCauchy a = WrappedCauchy (Complex a)
 
 instance RealFloat a => Distribution (WrappedCauchy a) a where
-    densityAt (WrappedCauchy mu) t = realToFrac $ (1 - (magnitude mu)^2) / (2*pi * (magnitude $ (exp (0:+t)) - mu)^2)
+    densityAt (WrappedCauchy mu) t = realToFrac $ (1 - (magnitude mu)^2) / (2*pi * (magnitude $ ((cos t):+(sin t)) - mu)^2)
     distributionShortcut _ = "wC"
 
 instance RealFloat a => EMDistribution (WrappedCauchy a) a where
-    maximumLikelihoodEstimate ps ws = WrappedCauchy $ fmap realToFrac $ i' (0:+0)
+    maximumLikelihoodEstimate !ps !ws = WrappedCauchy $ fmap realToFrac $ i' (0:+0)
         where u z phi = (z - phi) / (1 - (conjugate phi)*z)
+              thetas = map (\p -> (cos $ realToFrac p):+(sin $ realToFrac p)) ps
               sum_w = realToFrac $ sum ws
-              f mu_n = u (fmap (/sum_w) $ sum $ zipWith (\t w -> fmap (*w) $ u (exp (0:+(realToFrac t))) mu_n) ps ws) (-mu_n)
+              f mu_n = u (fmap (/sum_w) $ sum $ zipWith (\th w -> fmap (*w) $ u th mu_n) thetas ws) (-mu_n)
               i a b | magnitude (a - b) < 1E-7 = a
                     | otherwise = i b $ f b
               i' a = i a $ f a
