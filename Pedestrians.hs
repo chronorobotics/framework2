@@ -25,7 +25,7 @@ spatialResolution = 0.5
 temporalResolution = 300
 
 pedestrians :: Scenario (Cell Double) Float (CellGrid Double)
-pedestrians = ("Pedestrians Prediction", pedestriansLoader temporalResolution spatialResolution, pedestriansErrorEvaluator squareError)
+pedestrians = ("Pedestrians Prediction", pedestriansLoader temporalResolution spatialResolution, pedestriansErrorEvaluator squareError, drawBarsAndArrows)
 
 main :: IO ()
 main = processScenario pedestrians

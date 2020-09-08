@@ -15,7 +15,8 @@ import Debug.Trace
 mtrace a = trace (show a) a
 
 type DataLoader t y h = String -> IO(Dataset t y h)
-type Scenario t y h = (String, DataLoader t y h, ErrorEvaluator t y h)
+type Summariser = String -> [String] -> [String] -> [[Float]] -> IO()
+type Scenario t y h = (String, DataLoader t y h, ErrorEvaluator t y h, Summariser)
 type MethodEntry t y h = (Bool, String, Method t y h)
 
 infixl 0 >>$
@@ -52,15 +53,7 @@ doMethodEntry erre trn tsts (force, name, method) = (force, name, str, map (erre
     where (str, pred) = method trn
 
 processScenario :: (Show t, Show y) => Scenario t y h -> String -> [(String, String)] -> [MethodEntry t y h] -> IO()
-processScenario (name, load, erre) trn tsts mes = do
-{-    let methods = map (\(_, _, m) -> m) mes
-    putStrLn name;
-    train <- load trn;
-    let preds = map (\m -> m train) methods;
-    let names = map (\(s, _) -> s) preds;
---    sequence $ map (putStrLn . show) names;
-    tests <- sequence $ map (\(f, n) -> load f) tsts;
-    let errors = map (\p -> map (\t -> erre p t) tests) preds;-}
+processScenario (name, load, erre, summariser) trn tsts mes = do
     cache <- loadCache name;
     train <- load trn;
     tests <- sequence $ map (\(f, n) -> load f) tsts;
@@ -69,16 +62,20 @@ processScenario (name, load, erre) trn tsts mes = do
     let (names, errors) = unzip $ map (\(_, n, es) -> (n, es)) results;
     saveCache name cache';
     
-    sequence $ map (putStrLn . show) names;
+    summariser name (map snd tsts) names errors;
+    return ();
+
+drawBarsAndArrows :: Summariser
+drawBarsAndArrows name test_names method_names errors = do
+    sequence $ map (putStrLn . show) method_names;
     sequence $ map (putStrLn . show) errors;
     
-    writeFile "tmp/results.py" $ "name=\""++name++"\"\nmethods="++(show names)++"\nerrors="++(show errors)++"\nlabels="++(show $ map (\(f, n) -> n) tsts);
-    let nes = zip names (map (map realToFrac) errors);
+    writeFile "tmp/results.py" $ "name=\""++name++"\"\nmethods="++(show method_names)++"\nerrors="++(show errors)++"\nlabels="++(show test_names);
+    let nes = zip method_names (map (map realToFrac) errors);
     let dot = foldr (++) "" $ map (\ne -> foldr (++) "" $ map (oneArrow ne) nes) nes;
-    let dot' = foldr (++) "" $ map (\n -> "\""++n++"\"\n") names;
+    let dot' = foldr (++) "" $ map (\n -> "\""++n++"\"\n") method_names;
     writeFile "tmp/graph.dot" $ "digraph\n{\nnode [penwidth=2 fontname=\"palatino bold\"]\nedge [penwidth=2]\n"++dot++dot'++"}";
     cwd <- getCurrentDirectory;
     readProcess "bash" [cwd++"/summary.sh", name] "";
     return ();
-
 
