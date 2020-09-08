@@ -22,12 +22,12 @@ instance Distribution Gaussian [Double] where
     distributionShortcut _ = "Gauss"
 
 instance EMDistribution Gaussian [Double] where
-    maximumLikelihoodEstimate dat = Gaussian (fromList means) (fromComplex $ eig $ fromLists cov)
-        where n = let (x, _) = head ps ws in length x
+    maximumLikelihoodEstimate ps ws = Gaussian (fromList means) (fromComplex $ eig $ fromLists cov)
+        where n = let (x, _) = head ps in length x
               dat = zip ps ws
               fromComplex' m = cmap (\(x :+ _) -> x) m
               fromComplex (a, b) = (fromComplex' a, fromComplex' b)
-              sum_w = realToFrac $ sum $ map (\(_, w) -> w) dat
+              sum_w = realToFrac $ sum ws
               rng = [0..(n-1)]
               means = map (\i -> (sum $ map (\(x, w) -> (realToFrac w) * (x!!i)) dat) / sum_w) rng
               cov = map (\i -> map (\j -> (sum $ map (\(x, w) -> (realToFrac w) * ((x!!i) - (means!!i)) * ((x!!j) - (means!!j))) dat) / sum_w) rng) rng
