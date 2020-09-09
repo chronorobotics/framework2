@@ -19,9 +19,9 @@ cellGridMethod hf m = cgm
                     dat0 = Data.Sequence.replicate cc []
                     add ((t, x), y) d = Data.Sequence.update i ((t, y) : (index d i)) d
                         where i = getSubcellId grid x
-                    dat' = Prelude.foldr add dat0 dat
+                    dat' = id $! Prelude.foldr add dat0 dat
                     (name, _) = preds' !! 0
-                    preds = Data.Vector.fromList $ Prelude.map (\(_, p) -> p) preds'
+                    preds = Data.Vector.fromList $ Prelude.map snd $! preds'
 
 -- |This function does the same as cellGridMethod but it applies to a method
 --  with parameters. The same parameters are being passed to each cell.
