@@ -15,7 +15,7 @@ dataCollector zero sum_f ((grid, header), dat) = (header, dat')
     where cc = subcellCount grid
           hist0 = Data.Sequence.replicate cc zero
           add h i y = update i (sum_f (index h i) y) h
-          hist = foldr (\(t, y) h -> add h (getSubcellId grid t) y) hist0 dat
+          hist = foldl (\h (t, y) -> add h (getSubcellId grid t) y) hist0 dat
           dat' = map (\(i, y) -> ((p1 $ getSubcellById grid i), y)) (Prelude.zip [0..(cc-1)] (toList hist))
           p1 (x, _) = x
 
