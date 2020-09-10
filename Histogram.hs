@@ -18,5 +18,5 @@ histogramMethod (period, nbins) (_, dat) = histogramPredictor (fmap (\(s,n) -> m
     where s = Data.Sequence.replicate nbins (meanZero, 0)
           addToBin bs i y = update i (add (index bs i) y) bs
               where add (s, n) y = (meanSum s y, n + 1)
-          bins = foldr (\(t, y) bs -> addToBin bs (getBinNo period t nbins) y) s dat
+          bins = foldl (\bs (t, y) -> addToBin bs (getBinNo period t nbins) y) s dat
 
