@@ -32,6 +32,9 @@ instance EMDistribution Gaussian [Double] where
               means = map (\i -> (sum $ map (\(x, w) -> (realToFrac w) * (x!!i)) dat) / sum_w) rng
               cov = map (\i -> map (\j -> (sum $ map (\(x, w) -> (realToFrac w) * ((x!!i) - (means!!i)) * ((x!!j) - (means!!j))) dat) / sum_w) rng) rng
 
+instance MeanDistribution Gaussian [Double] where
+    distributionMean (Gaussian mu _) = toList mu
+
 gaussianMinVariance :: Double -> Gaussian -> Gaussian
 gaussianMinVariance limit (Gaussian mu (lambda, v)) = Gaussian mu (cmap clip lambda, v)
     where clip l | l < limit = limit

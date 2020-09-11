@@ -12,6 +12,9 @@ class Distribution dist space | dist -> space where
     densityAt :: RealFloat f => dist -> space -> f
     distributionShortcut :: dist -> String
 
+class (Distribution dist space) => MeanDistribution dist space | dist -> space where
+    distributionMean :: dist -> space
+
 type InitDistribution g d = g -> (d, g)
 type DistributionEstimator s d = (String, [s] -> d)
 
