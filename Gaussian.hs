@@ -10,11 +10,15 @@ import System.Random
 import EMAlgorithm
 import Distribution
 
+import Debug.Trace
+
+mtr x = trace (show x) x
+
 data Gaussian = Gaussian (Vector Double) (Vector Double, Matrix Double) deriving (Show, Eq)
 
 instance Distribution Gaussian [Double] where
     densityAt (Gaussian mu (lambda, v)) at = realToFrac $ (exp x) / (sqrt $ (2*pi)^n * (product ls))
-        where t = fromList $ zipWith (-) at $ toList lambda
+        where t = fromList $ zipWith (-) at $ toList mu
               t' = toList $ t <# v
               ls = toList lambda
               x = (-0.5) * (sum $ zipWith (/) (map (^2) t') ls)
@@ -22,8 +26,9 @@ instance Distribution Gaussian [Double] where
     distributionShortcut _ = "Gauss"
 
 instance EMDistribution Gaussian [Double] where
-    maximumLikelihoodEstimate ps ws = Gaussian (fromList means) (fromComplex $ eig $ fromLists cov)
-        where n = let (x, _) = head ps in length x
+    maximumLikelihoodEstimate ps ws | n == 0 = Gaussian (fromList []) (fromList [], fromLists [])
+                                    | otherwise = Gaussian (fromList means) ((\(u, s, v) -> (s, v)) $ svd $ fromLists cov)
+        where n = length $ head ps
               dat = zip ps ws
               fromComplex' m = cmap (\(x :+ _) -> x) m
               fromComplex (a, b) = (fromComplex' a, fromComplex' b)
