@@ -37,6 +37,6 @@ main = processScenario doorState
        >>! "FreMEn" :> bruteForceTrain (parametriseMethodTransform (trimmer 0 1) freMEn) (map (\a -> (604800, 84, a)) [1..5]) (meanError squareError)
        >>! "EM-wC" :> bruteForceTrain (parametriseMethodTransform' (wrappedMethod wrapTime') $ createDistributionMethod bdm emAlgorithm) (map (\a -> (604800, ((), (a, 7350, initWrappedCauchy 0.999, 1.0, wrappedCauchyMaxMu 0.999)))) [5,10,15,20,25,30]) (meanError squareError)
        >>! "EM-vM" :> bruteForceTrain (parametriseMethodTransform' (wrappedMethod wrapTime') $ createDistributionMethod bdm emAlgorithm) (map (\a -> (604800, ((), (a, 7351, initVonMises 100, 1.0, vonMisesMaxKappa 300)))) [5,10,15,20,25,30]) (meanError squareError)
-       >>! "HyT-EM" :> bruteForceTrain (parametriseMethodTransform (methodChangeType (\t -> ([], t)) id id id) $ hypertime $ createDistributionMethod bdm' emAlgorithm) (map (\a -> ((604800, 84, squareError), \i -> ((), (a, 7351, initGaussian' i (-1.0) 1.0 0.1 2.0, 1.0, gaussianMinVar 0.01)))) [1,2,3,4,5]) (meanError squareError)
+       >>! "HyT-EM" :> bruteForceTrain (parametriseMethodTransform (methodChangeType (\t -> ([], t)) id id id) $ hypertime $ createDistributionMethod bdm' emAlgorithm) (map (\a -> ((604800, 84, meanError squareError, (-)), \i -> ((), (a, 7351, initGaussian' i (-1.0) 1.0 0.1 2.0, 1.0, gaussianMinVar 0.01)))) [1,2,3,4,5]) (meanError squareError)
        )
 
