@@ -24,9 +24,11 @@ In `Predictor.hs`, look at the definition of a method. A method is basically a f
 How to implement an experiment
 ------------------------------
 
-To create an experiment, you need a data loader (defined in `Scenario.hs`) and an error evaluator (defined in `Predictor.hs`). A data loader basically loads a dataset from given file. And an error evaluator is a function which calculates the error of a method on given dataset. To create a scenario (defined in `Scenario.hs`), you need both these and a name of the experiment.
+To create an experiment, you need a data loader (defined in `Scenario.hs`), an error evaluator (defined in `Predictor.hs`) and a summariser (defined in `Scenario.hs`). A data loader basically loads a dataset from given file. And an error evaluator is a function which calculates the error of a method on given dataset. To create a scenario (defined in `Scenario.hs`), you need both these and a name of the experiment. A summariser is an IO function which takes the results and displays them in a human-readable format (i.e. draws graphs and such).
 
 After you create a scenario, you can process it by calling the function `processScenario`. The arguments of this functions are a scenario, a path to the training dataset, a path to the testing datasets and a list of used methods. When a method has parameters, you can either assign them here or use the function `bruteForceTrain` (defined in `Predictor.hs`) which tries all parameters from given list and chooses the best one.
+
+To compose the list of methods is being composed using the operators `>>$`, `>>!` and `>>#` (all defined in `Scenario.hs`). Each entry contains an universal string identificator and a variable of type `Method` (defined in `Predictor.hs`) separated by the `:>` operator. `>>$` means that the method will be always calculated. `>>!` means that the method will be calculated only if the result is not stored from previous runs. `>>#` means that the method will be ignored completely. Results of each method are stored for later runs in the corresponding text files in the `results` directory.
 
 The type of methods might not match the scenario. In this case, use method transformations to transform the methods into the the correct type. A few transformations are listed here:
 * `methodChangeType` converts the input and output types.
@@ -45,7 +47,6 @@ The type of methods might not match the scenario. In this case, use method trans
 TODO
 ----
 
-* A way to save predictor for later use
-* Graphical output
+* A way to save predictor for later use (Is that really needed?)
 * Implement more methods
-* Before we start implementing methods such as HyT-EM and HyT-CEM, implement probability distributions and EM-algorithm.
+
